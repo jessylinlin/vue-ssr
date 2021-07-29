@@ -1,6 +1,10 @@
 const Vue = require('vue')
 const express = require('express')
-const renderer = require('vue-server-renderer').createRenderer()
+const fs = require('fs')
+
+const renderer = require('vue-server-renderer').createRenderer({
+    template: fs.readFileSync('./index.template.html', 'utf-8')
+})
 
 //创建server实例
 const server = express()
@@ -13,15 +17,33 @@ server.get('/', (req, res) => {
         template: `
           <div id="app">
             <h1>{{message}}</h1>
+            <h2>客户端动态交互</h2>
+            <div>
+                <input type="text" v-model="message">
+            </div>
+            <div>
+                <button @click="onClick">btn</button>
+            </div>
           </div>
-          `,
+        `,
         data: {
             message: 'yyds'
+        },
+        methods: {
+            onclick() {
+                console.log('test')
+            }
         }
     })
 
     //app实例 ，回调函数
-    renderer.renderToString(app, (err, html) => {
+    renderer.renderToString(app, {
+        //模板中使用的数据
+        title: 'nmsl',
+        meta: `
+          <meta name="description" content="小日本nmsl">
+        `
+    }, (err, html) => {
         if (err) {
             res.status(500).end('Internal server Error')
 
@@ -30,16 +52,7 @@ server.get('/', (req, res) => {
         res.setHeader('Content-Type', 'text/html;charset=utf8')
 
         // res.end(html)
-        res.end(`
-          <!DOCTYPE html>
-          <html lang="en">
-            <head>
-            <meta charset="UTF-8">
-            <title>Hello</title>
-            </head>
-            <body>${html}</body>
-          </html>
-        `)
+        res.end(html)
     })
 })
 
