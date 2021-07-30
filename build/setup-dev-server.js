@@ -67,7 +67,7 @@ module.exports = (server, callback) => {
     clientConfig.plugins.push(new webpack.HotModuleReplacementPlugin())
     clientConfig.entry.app = [
         './src/entry-client.js',
-        'webpack-hot-middleware/client'
+        'webpack-hot-middleware/client?quiet=true&reload=true'
     ]
     clientConfig.output.filename = '[name].js' //热更新模式下不设置hash
 
