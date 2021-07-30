@@ -3,7 +3,7 @@
     <h1>{{message}}</h1>
     <h2>客户端动态交互</h2>
     <div>
-        <input type="text" v-model="message">
+    <input type="text" v-model="message">
     </div>
     <div>
         <button @click="onClick">btn</button>
@@ -20,7 +20,7 @@ export default {
     }
   },
   methods: {
-      onclick() {
+      onClick() {
           console.log('test')
       }
   }
