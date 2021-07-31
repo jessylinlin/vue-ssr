@@ -3,6 +3,7 @@ const express = require('express')
 const fs = require('fs')
 const { createBundleRenderer } = require('vue-server-renderer')
 const setupDevServer = require('./build/setup-dev-server')
+const { url } = require('inspector')
 
 const isPord = process.env.NODE_ENV === 'production'
 let renderer
@@ -38,30 +39,33 @@ if (isPord) {
     })
 }
 
-const render = (req, res) => {
+const render = async(req, res) => {
     //渲染vue实例 --entry中已经创建
     //app实例 ，回调函数
-    renderer.renderToString({
-        //模板中使用的数据
-        title: 'nmsl',
-        meta: `
-          <meta name="description" content="小日本nmsl">
-        `
-    }, (err, html) => {
-        if (err) {
-            res.status(500).end('Internal server Error')
+    try {
+        const html = await renderer.renderToString({
+            //模板中使用的数据
+            title: 'nmsl',
+            meta: `
+        <meta name="description" content="小日本nmsl">
+      `,
+            //服务端路由
+            url: req.url
+        })
 
-            return
-        }
         res.setHeader('Content-Type', 'text/html;charset=utf8')
 
         // res.end(html)
         res.end(html)
-    })
+
+    } catch (err) {
+        return res.status(500).end('Internal server Error')
+    }
 }
 
 //添加路由 访问根路径 路由处理函数
-server.get('/', isPord ?
+//express路由设置为* 所有路由都会进入
+server.get('*', isPord ?
     render : async(req, res) => {
         //等待有了 renderer 渲染器后 调用render函数渲染
         await onReady
